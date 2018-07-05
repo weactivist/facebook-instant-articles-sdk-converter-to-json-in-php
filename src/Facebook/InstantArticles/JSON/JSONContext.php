@@ -6,7 +6,7 @@
  * This source code is licensed under the license found in the
  * LICENSE file in the root directory of this source tree.
  */
-namespace Facebook\InstantArticles\AMP;
+namespace Facebook\InstantArticles\JSON;
 
 use Facebook\InstantArticles\Elements\InstantArticle;
 
@@ -14,7 +14,7 @@ use Facebook\InstantArticles\Validators\Type;
 use Facebook\InstantArticles\Utils\Warning;
 use Facebook\InstantArticles\Utils\CSSBuilder;
 
-class AMPContext
+class JSONContext
 {
     private $instantArticle;
     private $document;
@@ -33,7 +33,6 @@ class AMPContext
     private $articleItems = array();
     private $footer;
 
-    private $cssPrefix;
     private $previousElementIdentifier;
     private $previousSpacing;
 
@@ -50,8 +49,8 @@ class AMPContext
     const MEDIA_TYPE_IMAGE = 'image';
     const MEDIA_TYPE_VIDEO = 'video';
 
-    const DEFAULT_WIDTH = AMPArticle::DEFAULT_WIDTH;
-    const DEFAULT_HEIGHT = AMPArticle::DEFAULT_HEIGHT;
+    const DEFAULT_WIDTH = JSONArticle::DEFAULT_WIDTH;
+    const DEFAULT_HEIGHT = JSONArticle::DEFAULT_HEIGHT;
 
     /**
      * Private constructor. Use self::create($document, $instantArticle)
@@ -61,19 +60,16 @@ class AMPContext
     }
 
     /**
-     * Factory method to create the AMPContext
+     * Factory method to create the JSONContext
      * @param DOMDocument $document The root document used on the context. If null informed, a new one will be created.
      * @param InstantArticle $instantArticle The Element InstantArticle that will be used during conversion.
-     * @param string $cssPrefix The css prefix for building element classes.
      */
-    public static function create($document, $instantArticle, $cssPrefix = "ia2amp-")
+    public static function create($document, $instantArticle)
     {
         $context = new self();
 
         return $context->withDocument($document)
-                       ->withInstantArticle($instantArticle)
-                       ->withCssPrefix($cssPrefix)
-                       ->withCssBuilder(new CSSBuilder($cssPrefix));
+                       ->withInstantArticle($instantArticle);
     }
 
     /**
@@ -92,18 +88,6 @@ class AMPContext
     }
 
     /**
-     * Sets the css prefix. Private method since this should be unmodifiable.
-     * @param string $cssPrefix The css prefix to construct element classes.
-     * @return $this reference.
-     */
-    private function withCssPrefix($cssPrefix)
-    {
-        Type::enforce($cssPrefix, Type::STRING);
-        $this->cssPrefix = $cssPrefix;
-        return $this;
-    }
-
-    /**
      * Sets the CSSBuilder.
      * @param CSSBuilder $cssBuilder The css builder instance to be used.
      * @return $this reference.
@@ -113,15 +97,6 @@ class AMPContext
         Type::enforce($cssBuilder, CSSBuilder::getClassName());
         $this->cssBuilder = $cssBuilder;
         return $this;
-    }
-
-    /**
-     * Gets the CssBuilder being used in this context.
-     * @return CSSBuilder being used in this context.
-     */
-    public function getCssBuilder()
-    {
-        return $this->cssBuilder;
     }
 
     /**
@@ -147,13 +122,10 @@ class AMPContext
         if (!isset($attributes) || !$attributes) {
             $attributes = array();
         }
-        if (!Type::isTextEmpty($cssClass)) {
-            $attributes['class'] = $this->buildCssClass($cssClass);
-        }
+
         foreach ($attributes as $name => $value) {
             $element->setAttribute($name, $value);
         }
-        $this->withPreviousElementIdentifier($cssClass);
 
         if (isset($container) && $container) {
             Type::enforce($container, get_class(new \DOMNode()));
@@ -163,37 +135,9 @@ class AMPContext
         return $element;
     }
 
-
-    public function buildCssClass($cssClassName)
-    {
-        return $this->cssPrefix.$cssClassName;
-    }
-
-    public function buildCssSelector($cssClassName)
-    {
-        return '.'.$this->buildCssClass($cssClassName);
-    }
-
     public function withPreviousElementIdentifier($identifier)
     {
         $this->previousElementIdentifier = $identifier;
-    }
-
-    /**
-     * This will create a div with spacing, telling on class about the previous element.
-     * @param \DOMElement $container where this spacing will be appended to.
-     */
-    public function buildSpacingDiv($container)
-    {
-        if ($this->previousSpacing) {
-            if (!Type::isTextEmpty($this->previousElementIdentifier)) {
-                $class = $this->previousSpacing->getAttribute('class');
-                $class = $class.' before-'.$this->previousElementIdentifier;
-                $this->previousSpacing->setAttribute('class', $class);
-            }
-        }
-        $previousClass = Type::isTextEmpty($this->previousElementIdentifier) ? '' : ' after-'.$this->previousElementIdentifier;
-        $this->previousSpacing = $this->createElement('div', $container, 'spacing'.$previousClass);
     }
 
     /**
@@ -220,7 +164,7 @@ class AMPContext
     /**
      * Sets the <html> full document.
      * WARNING: by setting this, will overwrite the full document, be sure to
-     * have a valid AMP document while setting.
+     * have a valid JSON document while setting.
      * @param DOMElement $html The html tag, should be a <html> tag.
      * @throws InvalidArgumentException case not a DOMElement or not a <html> tag.
      * @return $this instance.
@@ -253,7 +197,7 @@ class AMPContext
     /**
      * Sets the <head> tag.
      * WARNING: by setting this, will overwrite the head from document, be sure to
-     * have a valid AMP head while setting.
+     * have a valid JSON head while setting.
      * @param DOMElement $head The head tag, should be a <head> tag.
      * @throws InvalidArgumentException case not a DOMElement or not a <head> tag.
      * @return $this instance.
@@ -286,7 +230,7 @@ class AMPContext
     /**
      * Sets the <body> tag.
      * WARNING: by setting this, will overwrite the body from document, be sure to
-     * have a valid AMP body while setting.
+     * have a valid JSON body while setting.
      * @param DOMElement $body The body tag, should be a <body> tag.
      * @throws InvalidArgumentException case not a DOMElement or not a <body> tag.
      * @return $this instance.
@@ -319,7 +263,7 @@ class AMPContext
     /**
      * Sets the <article> tag.
      * WARNING: by setting this, will overwrite the article from document, be sure to
-     * have a valid AMP article while setting.
+     * have a valid JSON article while setting.
      * @param DOMElement $article The article tag, should be a <article> tag.
      * @throws InvalidArgumentException case not a DOMElement or not a <article> tag.
      * @return $this instance.
@@ -352,7 +296,7 @@ class AMPContext
     /**
      * Sets the <header> tag.
      * WARNING: by setting this, will overwrite the header from document, be sure to
-     * have a valid AMP header while setting.
+     * have a valid JSON header while setting.
      * @param DOMElement $header The header tag, should be a <header> tag.
      * @throws InvalidArgumentException case not a DOMElement or not a <header> tag.
      * @return $this instance.
@@ -385,7 +329,7 @@ class AMPContext
     /**
      * Sets the headerBar <div> tag.
      * WARNING: by setting this, will overwrite the headerBar from document, be sure to
-     * have a valid AMP headerBar while setting.
+     * have a valid JSON headerBar while setting.
      * @param DOMElement $headerBar The headerBar tag, should be a <div> tag.
      * @throws InvalidArgumentException case not a DOMElement or not a <div> tag.
      * @return $this instance.
@@ -418,7 +362,7 @@ class AMPContext
     /**
      * Sets the headerBarLogo <div> tag.
      * WARNING: by setting this, will overwrite the headerBarLogo from document, be sure to
-     * have a valid AMP headerBarLogo while setting.
+     * have a valid JSON headerBarLogo while setting.
      * @param DOMElement $headerBarLogo The headerBarLogo tag, should be a <div> tag.
      * @throws InvalidArgumentException case not a DOMElement or not a <div> tag.
      * @return $this instance.
@@ -451,7 +395,7 @@ class AMPContext
     /**
      * Sets the <h1> title tag.
      * WARNING: by setting this, will overwrite the title from document, be sure to
-     * have a valid AMP title while setting.
+     * have a valid JSON title while setting.
      * @param DOMElement $h1 The title tag, should be a <h1> tag.
      * @throws InvalidArgumentException case not a DOMElement or not a <h1> tag.
      * @return $this instance.
@@ -484,7 +428,7 @@ class AMPContext
     /**
      * Sets the <h3> author tag.
      * WARNING: by setting this, will overwrite the author from document, be sure to
-     * have a valid AMP author while setting.
+     * have a valid JSON author while setting.
      * @param DOMElement $h3 The author tag, should be a <h3> tag.
      * @throws InvalidArgumentException case not a DOMElement or not a <h3> tag.
      * @return $this instance.
@@ -517,7 +461,7 @@ class AMPContext
     /**
      * Sets the <h2> kicker tag.
      * WARNING: by setting this, will overwrite the kicker from document, be sure to
-     * have a valid AMP kicker while setting.
+     * have a valid JSON kicker while setting.
      * @param DOMElement $h2 The kicker tag, should be a <h2> tag.
      * @throws InvalidArgumentException case not a DOMElement or not a <h2> tag.
      * @return $this instance.
@@ -550,7 +494,7 @@ class AMPContext
     /**
      * Sets the <h3> date tag.
      * WARNING: by setting this, will overwrite the date from document, be sure to
-     * have a valid AMP date while setting.
+     * have a valid JSON date while setting.
      * @param DOMElement $h3 The date tag, should be a <h3> tag.
      * @throws InvalidArgumentException case not a DOMElement or not a <h3> tag.
      * @return $this instance.
@@ -592,7 +536,7 @@ class AMPContext
     /**
      * Sets the <footer> tag.
      * WARNING: by setting this, will overwrite the footer from document, be sure to
-     * have a valid AMP footer while setting.
+     * have a valid JSON footer while setting.
      * @param DOMElement $footer The footer tag, should be a <footer> tag.
      * @throws InvalidArgumentException case not a DOMElement or not a <footer> tag.
      * @return $this instance.
@@ -663,7 +607,7 @@ class AMPContext
     /**
      * Returns an array(width, height) based on that image URL.
      * @param string $mediaURL
-     * @param string $mediaType: Possible values: AMPContext::MEDIA_TYPE_IMAGE and AMPContext::MEDIA_TYPE_VIDEO.
+     * @param string $mediaType: Possible values: JSONContext::MEDIA_TYPE_IMAGE and JSONContext::MEDIA_TYPE_VIDEO.
      * @return array with 2 possitions, first being width, second being the height.
      */
     public function getMediaDimensions($mediaURL, $mediaType = null)
@@ -677,7 +621,7 @@ class AMPContext
             return $mediaDimensions;
         }
 
-        if ($mediaType === AMPContext::MEDIA_TYPE_IMAGE && $this->enableDownloadForMediaSizing) {
+        if ($mediaType === JSONContext::MEDIA_TYPE_IMAGE && $this->enableDownloadForMediaSizing) {
             $retrievedSizes = getimagesize($mediaURL);
             if ($retrievedSizes && !empty($retrievedSizes) && $retrievedSizes[0] !== 0) {
                 return $retrievedSizes;

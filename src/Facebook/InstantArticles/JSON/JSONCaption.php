@@ -6,11 +6,11 @@
  * This source code is licensed under the license found in the
  * LICENSE file in the root directory of this source tree.
  */
-namespace Facebook\InstantArticles\AMP;
+namespace Facebook\InstantArticles\JSON;
 
 use Facebook\InstantArticles\Elements\Caption;
 
-class AMPCaption
+class JSONCaption
 {
     /**
      * @var Context the conversion context holder
@@ -25,7 +25,7 @@ class AMPCaption
     /**
      * @var DOMNode The DOMNode html element being captionized
      */
-    private $ampTag;
+    private $jsonTag;
 
     /**
      * @var DOMNode The Final container for Caption
@@ -35,23 +35,23 @@ class AMPCaption
     /**
      * @var DOMNode The figcaption DOMNode that will hold the text content.
      */
-    private $ampCaption;
+    private $jsonCaption;
 
 
     /**
      * @param Caption $caption The element from SDK that contains all Caption data.
      * @param Context $context Conversion context var.
      */
-    public function __construct($caption, $context, $ampCaptionedElement)
+    public function __construct($caption, $context, $jsonCaptionedElement)
     {
         $this->caption = $caption;
         $this->context = $context;
-        $this->ampTag = $ampCaptionedElement;
+        $this->ampTag = $jsonCaptionedElement;
     }
 
-    public static function create($caption, $context, $ampCaptionedElement)
+    public static function create($caption, $context, $jsonCaptionedElement)
     {
-        return new AMPCaption($caption, $context, $ampCaptionedElement);
+        return new JSONCaption($caption, $context, $jsonCaptionedElement);
     }
 
     private function genContainer()
@@ -85,9 +85,9 @@ class AMPCaption
         // Title
         $title = $this->caption->getTitle();
         if ($title) {
-            $ampTitle = $this->context->createElement('h1', $this->ampCaption);
-            $ampTitleText = $title->textToDOMDocumentFragment($this->context->getDocument());
-            $ampTitle->appendChild($ampTitleText);
+            $jsonTitle = $this->context->createElement('h1', $this->ampCaption);
+            $jsonTitleText = $title->textToDOMDocumentFragment($this->context->getDocument());
+            $jsonTitle->appendChild($jsonTitleText);
         }
     }
 
@@ -96,17 +96,17 @@ class AMPCaption
         // SubTitle
         $subTitle = $this->caption->getSubTitle();
         if ($subTitle) {
-            $ampSubTitle = $this->context->createElement('h2', $this->ampCaption);
-            $ampSubTitleText = $subTitle->textToDOMDocumentFragment($this->context->getDocument());
-            $ampSubTitle->appendChild($ampSubTitleText);
+            $jsonSubTitle = $this->context->createElement('h2', $this->ampCaption);
+            $jsonSubTitleText = $subTitle->textToDOMDocumentFragment($this->context->getDocument());
+            $jsonSubTitle->appendChild($jsonSubTitleText);
         }
     }
 
     private function genText()
     {
         // Text
-        $ampText = $this->caption->textToDOMDocumentFragment($this->context->getDocument());
-        $this->ampCaption->appendChild($ampText);
+        $jsonText = $this->caption->textToDOMDocumentFragment($this->context->getDocument());
+        $this->ampCaption->appendChild($jsonText);
     }
 
     private function genCredit()
@@ -114,33 +114,10 @@ class AMPCaption
         // Credit
         $credit = $this->caption->getCredit();
         if ($credit) {
-            $ampCredit = $this->context->createElement('cite', $this->ampCaption);
-            $ampCreditText = $credit->textToDOMDocumentFragment($this->context->getDocument());
-            $ampCredit->appendChild($ampCreditText);
+            $jsonCredit = $this->context->createElement('cite', $this->ampCaption);
+            $jsonCreditText = $credit->textToDOMDocumentFragment($this->context->getDocument());
+            $jsonCredit->appendChild($jsonCreditText);
         }
-    }
-
-    private function applyStyleClasses()
-    {
-        $ampCSSClasses = array();
-        $ampCSSClasses[] = $this->context->buildCssClass('figcaption');
-
-        if ($this->caption->getFontSize()) {
-            $ampCSSClasses[] = $this->context->buildCssClass($this->caption->getFontSize());
-        } else {
-            $ampCSSClasses[] = $this->context->buildCssClass(Caption::SIZE_SMALL);
-        }
-        if ($this->caption->getTextAlignment()) {
-            $ampCSSClasses[] = $this->context->buildCssClass($this->caption->getTextAlignment());
-        }
-        if ($this->caption->getPosition()) {
-            $ampCSSClasses[] = $this->context->buildCssClass($this->caption->getPosition());
-        }
-        if ($this->caption->getVerticalAlignment()) {
-            $ampCSSClasses[] = $this->context->buildCssClass($this->caption->getVerticalAlignment());
-        }
-
-        $this->ampCaption->setAttribute('class', implode(' ', $ampCSSClasses));
     }
 
     public function build()
@@ -151,7 +128,6 @@ class AMPCaption
         $this->genSubtitle();
         $this->genText();
         $this->genCredit();
-        $this->applyStyleClasses();
 
         return $this->container;
     }

@@ -6,34 +6,32 @@
  * This source code is licensed under the license found in the
  * LICENSE file in the root directory of this source tree.
  */
-namespace Facebook\InstantArticles\AMP;
+namespace Facebook\InstantArticles\JSON;
 
-class AMPCoverImage
+class JSONCoverImage
 {
     // Constructor setup
     private $image;
     private $context;
-    private $cssClass;
 
     // Generator fill in
     private $containerTag;
-    private $ampImgTag;
+    private $jsonImgTag;
 
-    private function __construct($image, $context, $cssClass)
+    private function __construct($image, $context)
     {
         $this->image = $image;
         $this->context = $context;
-        $this->cssClass = $cssClass;
     }
 
-    public static function create($image, $context, $cssClass)
+    public static function create($image, $context)
     {
-        return new self($image, $context, $cssClass);
+        return new self($image, $context);
     }
 
     private function genContainer()
     {
-        $this->containerTag = $this->context->createElement('div', null, $this->cssClass);
+        $this->containerTag = $this->context->createElement('div', null);
     }
 
     private function genCaptionContainer()
@@ -41,25 +39,25 @@ class AMPCoverImage
         $caption = $this->image->getCaption();
         if ($caption) {
             $this->ampImgTag =
-                AMPCaption::create($caption, $this->context, $this->ampImgTag)->build();
+                JSONCaption::create($caption, $this->context, $this->ampImgTag)->build();
         }
     }
 
     private function genAmpImage()
     {
-        $this->ampImgTag = $this->context->createElement('amp-img', null, 'header-cover-img');
+        $this->ampImgTag = $this->context->createElement('img', null);
         $imageURL = $this->image->getUrl();
 
-        $imageDimensions = $this->context->getMediaDimensions($imageURL, AMPContext::MEDIA_TYPE_IMAGE);
+        $imageDimensions = $this->context->getMediaDimensions($imageURL, JSONContext::MEDIA_TYPE_IMAGE);
         $imageWidth = $imageDimensions[0];
         $imageHeight = $imageDimensions[1];
 
-        $horizontalScale = AMPContext::DEFAULT_WIDTH / $imageWidth;
-        $verticalScale = AMPContext::DEFAULT_HEIGHT / $imageHeight;
-        $maxScale = max($horizontalScale, $verticalScale);
+        $horizontalScale = $imageWidth > 0 ? JSONContext::DEFAULT_WIDTH / $imageWidth : 0;
+        $verticalScale = $imageHeight > 0 ? JSONContext::DEFAULT_HEIGHT / $imageHeight : 0;
+        $maxScale = ($horizontalScale > 0 || $verticalScale > 0) ? max($horizontalScale, $verticalScale) : 0;
 
-        $translateX = (int) (-($imageWidth * $maxScale - AMPContext::DEFAULT_WIDTH) / 2);
-        $translateY = (int) (-($imageHeight * $maxScale - AMPContext::DEFAULT_HEIGHT) / 2);
+        $translateX = (int) (-($imageWidth * $maxScale - JSONContext::DEFAULT_WIDTH) / 2);
+        $translateY = (int) (-($imageHeight * $maxScale - JSONContext::DEFAULT_HEIGHT) / 2);
 
         $imageWidth = (int) ($imageWidth * $maxScale);
         $imageHeight = (int) ($imageHeight * $maxScale);
@@ -68,11 +66,6 @@ class AMPCoverImage
         $this->ampImgTag->setAttribute('width', (string) $imageWidth);
         $this->ampImgTag->setAttribute('height', (string) $imageHeight);
         $this->ampImgTag->setAttribute('layout', 'responsive');
-
-        $imageCSSClass = $this->ampImgTag->getAttribute('class');
-        $containerCSSClass = $this->containerTag->getAttribute('class');
-        $this->context->getCssBuilder()
-            ->addProperty("amp-img.$imageCSSClass", 'transform', "translate({$translateX}px, {$translateY}px)");
     }
 
     public function build()

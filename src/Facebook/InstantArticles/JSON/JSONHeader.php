@@ -6,9 +6,9 @@
  * This source code is licensed under the license found in the
  * LICENSE file in the root directory of this source tree.
  */
-namespace Facebook\InstantArticles\AMP;
+namespace Facebook\InstantArticles\JSON;
 
-class AMPHeader
+class JSONHeader
 {
     private $header;
     private $context;
@@ -32,7 +32,6 @@ class AMPHeader
             ->getHeader()
             ->getKicker()
             ->textToDOMDocumentFragment($this->context->getDocument()));
-            $this->context->buildSpacingDiv($this->header);
         }
     }
 
@@ -40,16 +39,14 @@ class AMPHeader
     {
         $iaTitle = $this->iaHeader()->getTitle();
         if ($iaTitle) {
-            $h1 = $this->context->createElement('h1', $this->header, 'header-h1');
+            $h1 = $this->context->createElement('h1', $this->header);
             $h1->appendChild($iaTitle->textToDOMDocumentFragment($this->context->getDocument()));
-            $this->context->buildSpacingDiv($this->header);
         }
     }
 
     private function genHeaderBar()
     {
-        $this->headerBar = $this->context->createElement('div', $this->header, 'header-bar');
-        $this->context->buildSpacingDiv($this->header);
+        $this->headerBar = $this->context->createElement('div', $this->header);
         // Note: The logo will be added after the whole article is processed
     }
 
@@ -57,40 +54,36 @@ class AMPHeader
     {
         if ($this->iaHeader()->getSubtitle()) {
             $iaHeaderSubtitle = $this->iaHeader()->getSubtitle()->textToDOMDocumentFragment($this->context->getDocument());
-            $subtitle = $this->context->createElement('h2', $this->header, 'header-h2');
+            $subtitle = $this->context->createElement('h2', $this->header);
             $subtitle->appendChild($iaHeaderSubtitle);
-
-            $this->context->buildSpacingDiv($this->header);
         }
     }
 
     private function genArticlePublishDateElement()
     {
-        $this->publishDateElement = $this->context->createElement('h3', $this->header, 'header-date');
+        $this->publishDateElement = $this->context->createElement('h3', $this->header);
         // Note: The published date will be added after the whole article is processed
-        $this->context->buildSpacingDiv($this->header);
     }
 
     private function genAuthors()
     {
-        $authors = $this->context->createElement('h3', $this->header, 'header-author');
+        $authors = $this->context->createElement('h3', $this->header);
         $authorsElement = $this->iaHeader()->getAuthors();
         $authorsString = [];
         foreach ($authorsElement as $author) {
             $authorsString[] = $author->getName();
         }
         $authors->appendChild($this->context->getDocument()->createTextNode('By '.implode($authorsString, ', ')));
-        $this->context->buildSpacingDiv($this->header);
     }
 
     private function genContainer()
     {
         // Builds the content Header, with proper colors and image, adding to body
-        $this->header = $this->context->createElement('header', $this->context->getBody(), 'header');
+        $this->header = $this->context->createElement('header', $this->context->getHtml());
         // Creates the cover content for the cover and appends to the header
         if ($this->context->getInstantArticle()->getHeader()->getCover()) {
-            $ampCover = new AMPCover($this->context, $this->context->getInstantArticle()->getHeader()->getCover());
-            $this->header->appendChild($ampCover->build());
+            $jsonCover = new JSONCover($this->context, $this->context->getInstantArticle()->getHeader()->getCover());
+            $this->header->appendChild($jsonCover->build());
         }
     }
 
@@ -100,14 +93,14 @@ class AMPHeader
             return;
         }
 
-        $ampImageContainer = $this->context->createElement(
+        $jsonImageContainer = $this->context->createElement(
             'div',
             $this->headerBar,
             'header-bar-img-container'
         );
-        $ampImage = $this->context->createElement(
-            'amp-img',
-            $ampImageContainer,
+        $jsonImage = $this->context->createElement(
+            'img',
+            $jsonImageContainer,
             null,
             array(
                 'src' => $logo->url,

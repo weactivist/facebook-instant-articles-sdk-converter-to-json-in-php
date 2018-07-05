@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ruleset name="facebook/facebook-instant-articles-sdk-extensions-php">
+<ruleset name="weactivist/facebook-instant-articles-sdk-converter-to-json-php">
     <file>.</file>
     <exclude-pattern>vendor/</exclude-pattern>
     <arg name="colors" />

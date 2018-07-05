@@ -6,14 +6,14 @@
  * This source code is licensed under the license found in the
  * LICENSE file in the root directory of this source tree.
  */
-namespace Facebook\InstantArticles\AMP;
+namespace Facebook\InstantArticles\JSON;
 
 use Facebook\InstantArticles\Validators\Type;
 use Facebook\InstantArticles\Elements\Image;
 use Facebook\InstantArticles\Elements\Slideshow;
 use Facebook\InstantArticles\Elements\Video;
 
-class AMPCover
+class JSONCover
 {
     /**
      * @var Context the conversion context holder
@@ -43,7 +43,7 @@ class AMPCover
     private function genContainer()
     {
         if (Type::is($this->coverElement, Image::getClassName())) {
-            $this->coverTag = AMPCoverImage::create($this->coverElement, $this->context, 'cover-image')->build();
+            $this->coverTag = JSONCoverImage::create($this->coverElement, $this->context, 'cover-image')->build();
         } else if (Type::is($this->coverElement, Slideshow::getClassName())) {
             //return $this->buildSlideshow($this->coverElement, $context, 'cover-slideshow');
         } else if (Type::is($this->coverElement, Video::getClassName())) {

@@ -1,13 +1,13 @@
 {
-    "name": "facebook/facebook-instant-articles-sdk-extensions-in-php",
-    "description": "Facebook Instant Articles SDK Extensions in PHP to transform Instant Articles markup file into AMP",
-    "keywords": ["facebook", "sdk", "instant", "articles", "instantarticles", "amp", "extensions"],
+    "name": "weactivist/facebook-instant-articles-sdk-converter-to-json-in-php",
+    "description": "Facebook Instant Articles SDK extension in PHP to transform Instant Articles markup file into JSON",
+    "keywords": ["facebook", "sdk", "instant", "articles", "instantarticles", "json", "extensions"],
     "type": "library",
-    "homepage": "https://github.com/facebook/facebook-instant-articles-sdk-extensions-in-php",
+    "homepage": "https://github.com/weactivist/facebook-instant-articles-sdk-converter-to-json-in-php",
     "license": "proprietary",
     "authors": [{
-        "name": "Facebook",
-        "homepage": "https://github.com/facebook/facebook-instant-articles-sdk-extensions-in-php/contributors"
+        "name": "weactivist",
+        "homepage": "https://github.com/weactivist/facebook-instant-articles-sdk-converter-to-json-in-php"
     }],
     "config": {
         "sort-packages": true

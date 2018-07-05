@@ -6,9 +6,9 @@
  * This source code is licensed under the license found in the
  * LICENSE file in the root directory of this source tree.
  */
-namespace Facebook\InstantArticles\AMP;
+namespace Facebook\InstantArticles\JSON;
 
-class AMPImage
+class JSONImage
 {
     public $url;
     public $width;
